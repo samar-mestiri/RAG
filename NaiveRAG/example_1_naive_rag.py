@@ -2,11 +2,13 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
-
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ── 1) Documents (in production, load from PDFs/Notion/DB) ─
 raw = [
@@ -54,7 +56,7 @@ prompt = ChatPromptTemplate.from_messages([
 
 #llm = ChatAnthropic(model="claude-opus-4-7", temperature=0)
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash", 
+    model="gemini-3.1-flash-lite", 
     temperature=0.7
 )
 
