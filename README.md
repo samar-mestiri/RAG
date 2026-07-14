@@ -51,3 +51,18 @@ It evaluates its own outputs and only fetches external data when needed making t
 - Lower Latency and Cost: Avoids unnecessary retrieval steps hence cutting cost and time required during running the pipeline. This ensures the system remains efficient while still maintaining access to external knowledge when truly necessary.
 - High Scalability and Explainability: Reduces load by retrieving selectively, unlike RAG in which retrieval becomes slower and more expensive as the knowledge base grows.
 While RAG offered improvements over plain LLMs, it remained inflexible, noisy, slow and costly. Self RAG addresses these issues by being adaptive, targeted, faster and more streamlined.
+
+## Graph RAG, in depth
+Graph RAG represents documents as an entity-relation graph instead of chunks, and retrieves over the graph.
+
+Why a graph: limits of vector RAG
+Vector RAG can only find “this chunk is semantically close to this question.” It struggles with the following:
+
+Multi-hop: “Where did Project Alpha’s PM work before?” → needs (project → PM → past employer) chained traversal.
+Relational queries: “Which projects have John and Jane both worked on?” → needs the intersection of two people.
+Global understanding: “Who are this company’s 5 most influential people?” → needs the structure of the whole graph.
+Time / causal chains: “How did Event A end up affecting Event C?” → needs traversal through a causal graph.
+For these, the relationship itself is the information. The answer might not be written verbatim in any one document, you have to combine information from multiple sources.
+
+## Part III: Operations and decisions
+10. Evaluation methods and metrics

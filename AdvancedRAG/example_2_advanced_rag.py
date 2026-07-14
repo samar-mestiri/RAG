@@ -4,8 +4,10 @@ from dataclasses import dataclass
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
+# --- Upgraded to eliminate deprecation warnings ---
+from langchain_chroma import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
+# --------------------------------------------------
 from langchain_community.retrievers import BM25Retriever
 from langchain_classic.retrievers import EnsembleRetriever
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -58,7 +60,8 @@ def build_retrievers():
     vectordb = Chroma.from_documents(chunks, emb, collection_name="adv_rag")
 
     dense = vectordb.as_retriever(search_kwargs={"k": 8})
-    bm25 = BM25Retriever.from_documents(chunks); bm25.k = 8
+    bm25 = BM25Retriever.from_documents(chunks)
+    bm25.k = 8
 
     hybrid = EnsembleRetriever(retrievers=[bm25, dense], weights=[0.4, 0.6])
     return hybrid
@@ -68,7 +71,7 @@ def build_retrievers():
 # ════════════════════════════════════════════════════════════════
 multi_query_prompt = ChatPromptTemplate.from_messages([
     ("system", "Rewrite the user's question into 3 retrieval queries that preserve the meaning "
-               "but vary the wording and angle. One per line, no numbering."),
+               "but vary the wording and angle. One query per line. Do not output markdown lists, numbered lists, or bullet points."),
     ("human", "{question}")
 ])
 
@@ -79,8 +82,25 @@ llm = ChatGoogleGenerativeAI(
 
 def multi_queries(question: str) -> List[str]:
     raw = (multi_query_prompt | llm).invoke({"question": question}).content
-    qs = [q.strip("-•123456789. ").strip() for q in raw.split("\n") if q.strip()]
-    return [question] + qs[:3]  # original + 3 variants
+    
+    # Robustly convert raw content into lines, handling strings vs lists safely
+    if isinstance(raw, list):
+        raw_lines = []
+        for item in raw:
+            if isinstance(item, str):
+                raw_lines.extend(item.split("\n"))
+            else:
+                raw_lines.append(str(item))
+    elif isinstance(raw, str):
+        raw_lines = raw.split("\n")
+    else:
+        raw_lines = [str(raw)]
+        
+    # Standardize cleanup of any LLM-induced bullet points or numbers
+    qs = [q.strip("-•123456789. *").strip() for q in raw_lines if q.strip()]
+    
+    # Return original + up to 3 generated variants
+    return [question] + qs[:3]
 
 # ════════════════════════════════════════════════════════════════
 # 3. Reranking: sort candidates with a cross-encoder
