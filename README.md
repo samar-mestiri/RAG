@@ -66,3 +66,6 @@ For these, the relationship itself is the information. The answer might not be w
 
 ## Part III: Operations and decisions
 10. Evaluation methods and metrics
+
+## Part IV: Beyond RAG
+16. LLM Wiki: a knowledge system that accumulates instead of retrieving
