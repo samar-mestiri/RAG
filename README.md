@@ -69,3 +69,10 @@ For these, the relationship itself is the information. The answer might not be w
 
 ## Part IV: Beyond RAG
 16. LLM Wiki: a knowledge system that accumulates instead of retrieving
+Knowledge is compiled once into a set of markdown files, and incrementally maintained as new material comes in. The LLM is no longer the retriever, it’s the wiki editor.
+
+This isn’t a variant of RAG; it’s a different paradigm. It’s spreading quickly thanks to the rise of agentic tools that write directly to the file system, Claude Code, OpenAI Codex, and friends.
+
+A key quote:
+
+“The wiki is a persistent compounding artifact. The cross-references are already there. The contradictions are already flagged. The synthesis already reflects all the material.”
